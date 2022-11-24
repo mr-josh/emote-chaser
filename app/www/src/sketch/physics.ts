@@ -11,13 +11,15 @@ import {
 
 import processing from "p5";
 
-const WORLD_SCALE = 1.5;
+const WORLD_SCALE = 2;
 
 const engine = Engine.create({
+  constraintIterations: 4,
+  positionIterations: 12,
   gravity: {
     scale: 0.001 * WORLD_SCALE,
     x: 0,
-    y: 1,
+    y: 2,
   },
 });
 
@@ -35,6 +37,8 @@ const update = () => {
     hasWarned = true;
   }
 };
+
+let physles: Array<Phys> = [];
 
 // How to polymorph with ...arguments style syntax in typescript
 // constructor(...args: ConstructorParameters<typeof ParentClass>) {
@@ -56,10 +60,12 @@ class Phys {
     this.lastAngle = this.matter.angle;
 
     Composite.add(engine.world, this.matter);
+    physles.push(this);
   }
 
   remove() {
     Composite.remove(engine.world, this.matter);
+    physles.splice(physles.indexOf(this), 1);
   }
 
   get angle() {
@@ -103,6 +109,20 @@ class Phys {
 
   set angularVelocity(v: number) {
     Body.setAngularVelocity(this.matter, v);
+  }
+
+  get collisions() {
+    let collisions: Array<Phys> = [];
+    for (const phys of physles) {
+      if (this.matter == phys.matter) continue;
+
+      // @ts-ignore
+      if (Collision.collides(this.matter, phys.matter)) {
+        collisions.push(phys);
+      }
+    }
+
+    return collisions;
   }
 
   isCollidingWith(obj: Body): boolean {
@@ -151,8 +171,8 @@ class PhysRect extends Phys {
 
   get position() {
     return {
-      x: ((this.matter.position.x / WORLD_SCALE) - this.width / 2),
-      y: ((this.matter.position.y / WORLD_SCALE) - this.height / 2),
+      x: this.matter.position.x / WORLD_SCALE - this.width / 2,
+      y: this.matter.position.y / WORLD_SCALE - this.height / 2,
     };
   }
 
@@ -173,7 +193,10 @@ class PhysRect extends Phys {
 
   draw(p5: processing) {
     p5.push();
-    p5.translate(this.position.x + this.width / 2, this.position.y + this.height / 2);
+    p5.translate(
+      this.position.x + this.width / 2,
+      this.position.y + this.height / 2
+    );
     p5.rotate(this.angle);
     p5.rect(-this.width / 2, -this.height / 2, this.width, this.height);
     p5.pop();
