@@ -46,7 +46,7 @@ class Player extends PhysRect {
     // Collision stuffs
     if (this.collisions.length > 0) this.doubleJumpReady = false;
 
-    // Draw
+    // Draw ghosts
     for (const ghost of this.ghosts) {
       if (ghost.o <= 0) this.ghosts.splice(this.ghosts.indexOf(ghost), 1);
       ghost.o -= 0.05;
@@ -61,6 +61,7 @@ class Player extends PhysRect {
       p5.blendMode(p5.BLEND);
     }
 
+    // Draw player
     p5.stroke("black");
     p5.fill("red");
     p5.push();
@@ -84,8 +85,14 @@ class Player extends PhysRect {
     if (p5.keyIsDown(83) && !this.collisions.some((col) => col.matter.isStatic)) {
       // drop
       this.damaging = true;
-      this.facingDirection = 1;
       this.velocity = { x: this.velocity.x * 0.5, y: 40 };
+
+      this.ghosts.push({
+        ...this.position,
+        o: 1,
+      });
+
+      this.ghosts.at(-1)!.o /= 2;
     }
 
     if (!(p5.keyIsDown(83) && !this.collisions.some((col) => col.matter.isStatic)) && !this.attacking) {
