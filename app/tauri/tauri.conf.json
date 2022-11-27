@@ -13,7 +13,7 @@
     "distDir": "../www/dist"
   },
   "package": {
-    "productName": "tauri-vite-ts-www-p5-matter",
+    "productName": "emote-chaser",
     "version": "0.1.0"
   },
   "tauri": {
@@ -35,7 +35,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "com.mr-josh.emote-chaser",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
