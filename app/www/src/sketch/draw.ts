@@ -60,7 +60,7 @@ const Sketch = (p5: processing) => {
     }, 100);
 
     // Add emotes to screen when they are sent in chat
-    twitch.addListener("message", (channel, tags, message, self) => {
+    twitch.addListener("message", (_channel, tags, message, _self) => {
       let emotes = emotify(message, tags.emotes);
 
       if (!emotes) return;
@@ -106,14 +106,6 @@ const Sketch = (p5: processing) => {
 
     // Player
     player.draw(p5);
-  };
-
-  p5.keyPressed = (ev: KeyboardEvent) => {
-    player.keyPressed(p5, ev);
-  };
-
-  p5.mousePressed = (ev: MouseEvent) => {
-    player.mousePressed(p5, ev);
   };
 
   p5.windowResized = () => {

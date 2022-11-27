@@ -1,5 +1,5 @@
 import processing from "p5";
-import { PhysCirc, PhysRect } from "sketch/physics";
+import { PhysCirc } from "sketch/physics";
 import Player from "./player";
 
 class Enemy extends PhysCirc {
@@ -51,13 +51,8 @@ class Enemy extends PhysCirc {
       this.position = { x: p5.random(0, p5.width), y: -this.size };
     }
 
-    p5.fill("darkred");
-    if (this.stunned) {
-      // super.draw(p5);
-      return;
-    }
+    if (this.stunned) return;
 
-    p5.fill("blue");
     this.angle = 0;
     this.angularVelocity = 0;
 
