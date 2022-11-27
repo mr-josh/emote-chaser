@@ -18,7 +18,7 @@ class Player extends PhysRect {
     y: number,
     options?: { speed?: number; jumpStrength?: number; attackRange?: number; attackSpeed?: number }
   ) {
-    super(x, y, 30, 30, { friction: 0.75 });
+    super(x, y, 20, 20, { isStatic: true, isSensor: true, friction: 0.75 });
 
     this.speed = options?.speed ?? 15;
     this.jumpStrength = options?.jumpStrength ?? 25;
@@ -38,7 +38,10 @@ class Player extends PhysRect {
     return this.attackRange;
   }
 
-  draw(p5: processing) {
+  draw(p5: processing, debug: boolean = false) {
+    this.position = {x: p5.mouseX, y: p5.mouseY};
+    this.damaging = true;
+
     // Lock rotation
     this.angle = 0;
     this.angularVelocity = 0;
@@ -47,102 +50,104 @@ class Player extends PhysRect {
     if (this.collisions.length > 0) this.doubleJumpReady = false;
 
     // Draw ghosts
-    for (const ghost of this.ghosts) {
-      if (ghost.o <= 0) this.ghosts.splice(this.ghosts.indexOf(ghost), 1);
-      ghost.o -= 0.05;
+    // for (const ghost of this.ghosts) {
+    //   if (ghost.o <= 0) this.ghosts.splice(this.ghosts.indexOf(ghost), 1);
+    //   ghost.o -= 0.05;
 
-      p5.blendMode(p5.MULTIPLY);
-      p5.noStroke();
-      p5.fill(`rgba(255, 0, 0, ${ghost.o})`);
-      p5.push();
-      p5.translate(ghost.x, ghost.y);
-      p5.rect(0, 0, this.size.h);
-      p5.pop();
-      p5.blendMode(p5.BLEND);
-    }
+    //   p5.blendMode(p5.MULTIPLY);
+    //   p5.noStroke();
+    //   p5.fill(`rgba(255, 0, 0, ${ghost.o})`);
+    //   p5.push();
+    //   p5.translate(ghost.x, ghost.y);
+    //   p5.rect(0, 0, this.size.h);
+    //   p5.pop();
+    //   p5.blendMode(p5.BLEND);
+    // }
 
     // Draw player
-    p5.stroke("black");
-    p5.fill("red");
-    p5.push();
-    p5.translate(this.position.x, this.position.y);
-    p5.rect(0, 0, this.size.h);
-    p5.pop();
-
-    // Movement
-    if (p5.keyIsDown(65)) {
-      // left
-      this.facingDirection = -1;
-      this.velocity = { x: -1 * this.speed, y: this.velocity.y };
+    if (debug) {
+      p5.stroke("black");
+      p5.fill("red");
+      p5.push();
+      p5.translate(this.position.x, this.position.y);
+      p5.rect(0, 0, this.size.h);
+      p5.pop();
     }
 
-    if (p5.keyIsDown(68)) {
-      // right
-      this.facingDirection = 1;
-      this.velocity = { x: 1 * this.speed, y: this.velocity.y };
-    }
+    // // Movement
+    // if (p5.keyIsDown(65)) {
+    //   // left
+    //   this.facingDirection = -1;
+    //   this.velocity = { x: -1 * this.speed, y: this.velocity.y };
+    // }
 
-    if (p5.keyIsDown(83) && !this.collisions.some((col) => col.matter.isStatic)) {
-      // drop
-      this.damaging = true;
-      this.velocity = { x: this.velocity.x * 0.5, y: 40 };
+    // if (p5.keyIsDown(68)) {
+    //   // right
+    //   this.facingDirection = 1;
+    //   this.velocity = { x: 1 * this.speed, y: this.velocity.y };
+    // }
 
-      this.ghosts.push({
-        ...this.position,
-        o: 1,
-      });
+    // if (p5.keyIsDown(83) && !this.collisions.some((col) => col.matter.isStatic && !col.matter.isSensor)) {
+    //   // drop
+    //   this.damaging = true;
+    //   this.velocity = { x: this.velocity.x * 0.5, y: 40 };
 
-      this.ghosts.at(-1)!.o /= 2;
-    }
+    //   this.ghosts.push({
+    //     ...this.position,
+    //     o: 1,
+    //   });
 
-    if (!(p5.keyIsDown(83) && !this.collisions.some((col) => col.matter.isStatic)) && !this.attacking) {
-      this.damaging = false;
-    }
+    //   this.ghosts.at(-1)!.o /= 2;
+    // }
 
-    // Attacking
-    if (this.attacking) {
-      this.position = {
-        x: this.position.x + this.facingDirection * this.attackRange,
-        y: this.position.y,
-      };
+    // if (!(p5.keyIsDown(83) && !this.collisions.some((col) => col.matter.isStatic && !col.matter.isSensor)) && !this.attacking) {
+    //   this.damaging = false;
+    // }
 
-      this.ghosts.push({
-        ...this.position,
-        o: 1,
-      });
+    // // Attacking
+    // if (this.attacking) {
+    //   this.position = {
+    //     x: this.position.x + this.facingDirection * this.attackRange,
+    //     y: this.position.y,
+    //   };
 
-      this.ghosts.at(-1)!.o /= 2;
-    }
+    //   this.ghosts.push({
+    //     ...this.position,
+    //     o: 1,
+    //   });
+
+    //   this.ghosts.at(-1)!.o /= 2;
+    // }
   }
 
   keyPressed(p5: processing, ev: KeyboardEvent) {
-    if (ev.key == " " && (this.collisions.some((col) => col.matter.isStatic) || this.doubleJumpReady)) {
-      this.velocity = { x: this.velocity.x, y: -this.jumpStrength };
-      if (this.doubleJumpReady) this.doubleJumpReady = false;
-      return;
-    }
+    // if (ev.key == " " && (this.collisions.some((col) => col.matter.isStatic && !col.matter.isSensor) || this.doubleJumpReady)) {
+    //   this.velocity = { x: this.velocity.x, y: -this.jumpStrength };
+    //   if (this.doubleJumpReady) this.doubleJumpReady = false;
+    //   return;
+    // }
   }
 
   mousePressed(p5: processing, ev: MouseEvent) {
-    if (this.attacking) return;
-    if (ev.buttons == 1 || ev.buttons == 2) {
-      this.facingDirection = ev.buttons == 2 ? 1 : -1;
+    // if (this.attacking) return;
+    // if (ev.buttons == 1 || ev.buttons == 2) {
+    //   this.facingDirection = ev.buttons == 2 ? 1 : -1;
 
-      this.matter.isStatic = true;
-      this.attacking = true;
-      this.damaging = true;
-      this.doubleJumpReady = true;
+    //   this.matter.isStatic = true;
+    //   this.attacking = true;
+    //   this.damaging = true;
+    //   this.doubleJumpReady = true;
 
-      setTimeout(() => {
-        this.matter.isStatic = false;
-        this.velocity = { x: this.velocity.x, y: 0 };
-      }, this.attackSpeed);
+    //   setTimeout(() => {
+    //     this.matter.isStatic = false;
+    //     this.velocity = { x: this.velocity.x, y: 0 };
+    //   }, this.attackSpeed);
 
-      setTimeout(() => {
-        this.attacking = false;
-      }, this.attackSpeed + 50);
-      return;
-    }
+    //   setTimeout(() => {
+    //     this.attacking = false;
+    //   }, this.attackSpeed + 50);
+    //   return;
+    // }
   }
 }
 

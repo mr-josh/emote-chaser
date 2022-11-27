@@ -61,11 +61,14 @@
     },
     "windows": [
       {
-        "fullscreen": false,
+        "fullscreen": true,
         "height": 600,
         "resizable": true,
-        "title": "Tauri + Vite + TS + p5 + matter-js",
-        "width": 800
+        "title": "Emote Chaser",
+        "width": 800,
+        "transparent": true,
+        "decorations": false,
+        "alwaysOnTop": true
       }
     ]
   }

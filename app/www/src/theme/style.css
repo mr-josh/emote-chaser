@@ -1,5 +1,9 @@
+html, body {
+  background-color: transparent;
+}
+
 body {
-  background-color: grey;
   display: grid;
   place-items: center;
+  overflow: hidden;
 }
